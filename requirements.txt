@@ -1,0 +1,5 @@
+matplotlib
+colorama
+requests
+dotenv
+sqlalchemy
