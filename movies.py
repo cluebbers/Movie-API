@@ -1,11 +1,12 @@
+import os
 import random
 import sys
 from statistics import mean, median
 
 import matplotlib.pyplot as plt
-from movie_web_generator import load_template, serialize_movies, write_output
 import movie_storage.movie_storage_sql as storage
 from colorama import Fore, Style
+from movie_web_generator import load_template, serialize_movies, write_output
 
 CURRENT_YEAR = 2025
 
@@ -30,7 +31,7 @@ def print_menu():
     print("10. Filter Movies")
     print("11. Create Rating Histogram")
     print("12. Generate website")
-    user_choice = input(Fore.YELLOW + "\nEnter choice (0-11): " + Style.RESET_ALL)
+    user_choice = input(Fore.YELLOW + "\nEnter choice (0-12): " + Style.RESET_ALL)
     print("")
 
     return user_choice
@@ -335,7 +336,7 @@ def filter_movies():
         Fore.YELLOW + "Enter end year (leave blank for no end year): " + Style.RESET_ALL
     )
     end_year = verify_year(end_year) if end_year else None
-    movies = storage.list_movies
+    movies = storage.list_movies()
     filtered_movies = {}
     for title, info in movies.items():
         if minimum_rating and info["rating"] < float(minimum_rating):
@@ -356,7 +357,7 @@ def create_rating_histogram():
     Args:
         movies (dict of dict): dictionary of movies
     """
-    movies = storage.list_movies
+    movies = storage.list_movies()
     user_filepath = input(
         Fore.YELLOW + "Enter filename to save the histogram: " + Style.RESET_ALL
     )
@@ -374,14 +375,26 @@ def create_html():
     Args:
         output (html): html with animal information
     """
-    movies = storage.list_movies
+    movies = storage.list_movies()
     output = ""
-    for movie in movies:
-        output += serialize_movies(movie)
-    template = load_template("animals_template.html")
+    for title, info in movies.items():
+        movie_obj = {
+            "title": title,
+            "year": info["year"],
+            "poster": info.get("poster", ""),
+        }
+        output += serialize_movies(movie_obj)
+    template = load_template("_static/index_template.html")
     template = template.replace("__TEMPLATE_TITLE__", "My Movie App")
     template = template.replace("__TEMPLATE_MOVIE_GRID__", output)
-    write_output("movies.html", template)
+    
+    os.makedirs("output", exist_ok=True)
+    with open("_static/style.css", "r") as src:
+        css = src.read()
+    with open("output/style.css", "w") as dst:
+        dst.write(css)
+        
+    write_output("output/movies.html", template)
 
     print("Website was generated successfully.")
     

@@ -36,17 +36,22 @@ with engine.connect() as connection:
 def list_movies():
     """Retrieve all movies from the database."""
     with engine.connect() as connection:
-        result = connection.execute(text("SELECT title, year, rating FROM movies"))
+        result = connection.execute(text("SELECT title, year, rating, poster FROM movies"))
         movies = result.fetchall()
 
-    return {row[0]: {"year": row[1], "rating": row[2]} for row in movies}
+    return {
+        row[0]: {"year": row[1], "rating": row[2], "poster": row[3]} for row in movies
+    }
 
 
 def add_movie(title):
     """Add a new movie to the database."""
     params = {"apikey": API_KEY, "t": title}
     try:
+        print("starting request")
         movie_info = requests.get(OMDB_URL, params=params)
+        print(type(movie_info))
+        print(movie_info)
     except Exception as e:
         print(f"Error. {e}")
     else:
@@ -74,7 +79,7 @@ def add_movie(title):
                     },
                 )
                 connection.commit()
-                print(f"Movie '{title}' added successfully.")
+                print(f"Movie '{title_api}' added successfully.")
             except Exception as e:
                 print(f"Error: {e}")
 

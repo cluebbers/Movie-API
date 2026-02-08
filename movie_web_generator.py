@@ -8,7 +8,7 @@ def serialize_movies(movies_obj):
     output = ""
     output += f'<li>\n'
     output += f'  <div class="movie">'
-    output += f'    <img class="movie-poster" src=f"{movies_obj["poster"]}">\n'
+    output += f'    <img class="movie-poster" src="{movies_obj["poster"]}">\n'
     output += f'    <div class="movie-title">{movies_obj["title"]}</div>\n'
     output += f'    <div class="movie-year">{movies_obj["year"]}</div>\n'
     output += f'  </div>\n'
